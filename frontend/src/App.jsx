@@ -1,6 +1,6 @@
 import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
 import Home from './pages/Home.jsx';
-import About from './pages/Experiment.jsx';
+import Experiment from './pages/Experiment.jsx';
 import Error from './pages/Error.jsx';
 
 import Footer from './components/footer.jsx';
@@ -14,7 +14,8 @@ function App() {
         <div className="flex-grow">
           <Routes>
             <Route path="/" element={<Home />} />
-            <Route path="/experiments" element={<About />} />
+            <Route path="/experiments" element={<Experiment />} />
+            <Route path="/experiments/:id" element={<Experiment />} />
             <Route path="*" element={<Error />} />
           </Routes>
         </div>
