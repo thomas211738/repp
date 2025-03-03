@@ -8,7 +8,7 @@ from repp.repp.analysis import REPPAnalysis
 
 import numpy as np
 import matplotlib
-matplotlib.use("Agg")  # Set backend to Agg before importing pyplot
+matplotlib.use("Agg") 
 import matplotlib.pyplot as plt
 import os
 import sounddevice as sd
