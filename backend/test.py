@@ -1,7 +1,5 @@
-
 from flask import Flask, request, jsonify, send_file
-from flask_cors import CORS  # Import CORS
-
+from flask_cors import CORS
 from repp.repp.config import sms_tapping
 from repp.repp.stimulus import REPPStimulus
 from repp.repp.analysis import REPPAnalysis
@@ -13,22 +11,31 @@ import matplotlib.pyplot as plt
 import os
 import sounddevice as sd
 
-app = Flask(__name__)
-CORS(app)  # Enable CORS for all routes
+from dotenv import load_dotenv
+import os
+load_dotenv()
 
-# CONFIG
-IS_MUSIC = True
+BACKEND_URL = os.getenv('BACKEND_URL')
+
+app = Flask(__name__)
+CORS(app)
+
+# Directories
 output_dir = "repp/output"
 input_dir = "repp/input"
 
 @app.route("/start_experiment", methods=["POST"])
 def start_experiment():
     try:
-        if IS_MUSIC:
+        # Get user input from JSON body
+        data = request.get_json()
+        is_music = data.get("isMusic", True)  # Default to True if not provided
+
+        if is_music:
             stimulus = REPPStimulus("stim_music1", config=sms_tapping)
             stim_prepared, stim_info, filenames = stimulus.prepare_stim_from_files(input_dir)
         else:
-            stim_ioi = np.repeat(500, 10)  # a stimulus defined by a list of ioi
+            stim_ioi = np.repeat(500, 10)  # a stimulus defined by a list of ioi
             stimulus = REPPStimulus("iso_500ioi", config=sms_tapping)
             stim_onsets = stimulus.make_onsets_from_ioi(stim_ioi)
             stim_prepared, stim_info, filenames = stimulus.prepare_stim_from_onsets(stim_onsets)
@@ -64,15 +71,17 @@ def start_experiment():
 
         return jsonify({
             "message": "Experiment completed successfully",
-            "plot_url": "http://127.0.0.1:5000/get_plot"
+            "plot_url": f"{BACKEND_URL}/get_plot"
         })
     
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 
+
 @app.route("/get_plot", methods=["GET"])
 def get_plot():
     return send_file("repp/output/plot.png", mimetype="image/png")
+
 
 if __name__ == "__main__":
     app.run(debug=True)
